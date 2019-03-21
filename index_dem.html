@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset=utf-8>
+    <title>hangul three.js</title>
+    <style>
+      body { margin: 0; }
+      canvas { width: 100%; height: 100% }
+    </style>
+  </head>
+  <body>
+    <div>Hey</div>
+    <script src="js/three.js"></script>
+    <script>
+      // Setup
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+      var renderer = new THREE.WebGLRenderer({alpha:true});
+      renderer.shadowMap.enabled = true;//enable shadow
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      document.body.appendChild( renderer.domElement );
+
+      var sphereGeometry = new THREE.DodecahedronGeometry( 10, 1);
+      var sphereMaterial = new THREE.MeshBasicMaterial( { color: 0xe5f2f2 } )
+      var hero = new THREE.Mesh( sphereGeometry, sphereMaterial );
+
+      scene.add(hero);
+
+      camera.position.z = 5;
+      // Render box
+      function animate() {
+      	requestAnimationFrame( animate );
+
+        renderer.render( scene, camera );
+      }
+      animate();
+    </script>
+  </body>
+</html>
