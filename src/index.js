@@ -1,18 +1,21 @@
 import * as THREE from './three.min.js';
 
+// Setup
+const [scene, camera, renderer] = setup();
+// Create world
+const world = createWorld();
+const player = createPlayer();
+const sun = createLight();
+
 document.addEventListener("DOMContentLoaded", () => {
-  // Setup
-  const [scene, camera, renderer] = setup();
-  // Create world
-  const world = createWorld();
-  const player = createPlayer();
-  const sun = createLight();
 
   scene.add( world );
   scene.add( player );
   scene.add( sun );
 
   camera.position.z = 20;
+
+  document.onkeydown = handleKeyDown;
 
   function animate() {
     requestAnimationFrame( animate );
@@ -106,4 +109,13 @@ function createLight() {
 	sun.shadow.camera.far = 50;
 
   return sun;
+}
+
+function handleKeyDown(e) {
+  if ( e.keyCode === 37) {//left
+    player.position.x -= 2;
+  } else if ( e.keyCode === 39) {//right
+    player.position.x += 2;
+  }
+
 }
