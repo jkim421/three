@@ -19,6 +19,9 @@ bundle.js.map
 /storage/*
 !/storage/.keep
 
+/node_modules
+/yarn-error.log
+
 .DS_Store
 
 /demo
