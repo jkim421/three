@@ -1,16 +1,28 @@
 import * as THREE from './three.min.js';
 
 // Setup
-const [scene, camera, renderer] = setup();
 // Create world
-const world = createWorld();
-const player = createPlayer();
-const sun = createLight();
+
+// const leftLane = -2;
+// const rightLane = -2;
+// const middleLane = 0;
+
+
+let currentLane = 0;
 
 document.addEventListener("DOMContentLoaded", () => {
+  const [scene, camera, renderer] = setup();
+
+  const clock = new THREE.Clock();
+  const world = createWorld();
+  const player = createPlayer();
+  const [hemisphereLight, sun] = createLight();
+
+  clock.start();
 
   scene.add( world );
   scene.add( player );
+  scene.add( hemisphereLight );
   scene.add( sun );
 
   camera.position.z = 20;
@@ -18,12 +30,15 @@ document.addEventListener("DOMContentLoaded", () => {
   document.onkeydown = handleKeyDown;
 
   function animate() {
-    requestAnimationFrame( animate );
 
     world.rotation.x += 0.01;
     player.rotation.x -= 0.02;
 
+    player.position.x = THREE.Math.lerp(player.position.x, currentLane, 10 * clock.getDelta());
+
     renderer.render( scene, camera );
+
+    requestAnimationFrame( animate );
   }
 
   animate();
@@ -35,9 +50,9 @@ function setup() {
   const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
   const renderer = new THREE.WebGLRenderer( { alpha: true } );
 
-  renderer.shadowMap.enabled = true;//enable shadow
+  renderer.shadowMap.enabled = true; //enable shadow
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.setSize( window.innerWidth - 100, window.innerHeight );
 
   document.body.appendChild( renderer.domElement );
 
@@ -56,7 +71,7 @@ function createWorld() {
   };
 
   // const geometry = new THREE.SphereGeometry( worldRadius, worldWidth, worldHeight );
-  const geometry = new THREE.DodecahedronGeometry( 12, 1 );
+  const geometry = new THREE.DodecahedronBufferGeometry( worldRadius, 1 );
   const material = new THREE.MeshBasicMaterial( materialProps );
   const world = new THREE.Mesh( geometry, material );
 
@@ -80,16 +95,17 @@ function createPlayer() {
     wireframe: false,
   };
 
-  const geometry = new THREE.DodecahedronGeometry( playerRadius, 1);
+  const geometry = new THREE.DodecahedronBufferGeometry( playerRadius, 1);
   const material = new THREE.MeshStandardMaterial( playerProps );
   const player = new THREE.Mesh( geometry, material );
 
   player.receiveShadow = true;
   player.castShadow = true;
-  player.position.y = 0;
+
+  player.position.x = currentLane;
+  player.position.y = -2;
   player.position.z = 11.4;
-  // currentLane = middleLane;
-  // player.position.x = currentLane;
+
   return player;
 }
 
@@ -99,7 +115,7 @@ function createLight() {
   const intensity = 0.9;
 
   const hemisphereLight = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-  const sun = new THREE.DirectionalLight( 0xcdc1c5, 0.9);
+  const sun = new THREE.DirectionalLight( 0xCDC1C5, 1);
 	sun.position.set(12, 6, -7 );
 	sun.castShadow = true;
 	//Set up shadow properties for the sun light
@@ -108,14 +124,29 @@ function createLight() {
 	sun.shadow.camera.near = 0.5;
 	sun.shadow.camera.far = 50;
 
-  return sun;
+  return [hemisphereLight, sun];
 }
 
 function handleKeyDown(e) {
-  if ( e.keyCode === 37) {//left
-    player.position.x -= 2;
-  } else if ( e.keyCode === 39) {//right
-    player.position.x += 2;
+  if ( e.keyCode === 37) { //left
+    updateLaneLeft();
+  } else if ( e.keyCode === 39) { //right
+    updateLaneRight();
   }
+}
 
+function updateLaneLeft() {
+  if (currentLane === -2) {
+    return;
+  } else {
+    currentLane -= 2;
+  }
+}
+
+function updateLaneRight() {
+  if (currentLane === 2) {
+    return;
+  } else {
+    currentLane += 2;
+  }
 }
