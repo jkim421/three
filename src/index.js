@@ -7,8 +7,11 @@ import * as THREE from './three.min.js';
 // const rightLane = -2;
 // const middleLane = 0;
 
+const width = window.innerWidth;
+const height = window.innerHeight;
 
 let currentLane = 0;
+const laneSize = 3;
 
 document.addEventListener("DOMContentLoaded", () => {
   const [scene, camera, renderer] = setup();
@@ -17,13 +20,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const world = createWorld();
   const player = createPlayer();
   const [hemisphereLight, sun] = createLight();
+  const lightHelper = new THREE.DirectionalLightHelper( sun, 5 );
 
   clock.start();
 
-  scene.add( world );
-  scene.add( player );
   scene.add( hemisphereLight );
   scene.add( sun );
+  scene.add( world );
+  scene.add( player );
+
+  // Camera/Light helpers
+  // scene.add( new THREE.CameraHelper( sun.shadow.camera ) );
+  // scene.add( lightHelper );
 
   camera.position.z = 20;
 
@@ -60,7 +68,7 @@ function setup() {
 }
 
 function createWorld() {
-  const worldRadius = 12;
+  const worldRadius = 14;
   const worldWidth = 32;
   const worldHeight = 32;
 
@@ -70,16 +78,16 @@ function createWorld() {
     wireframe: false,
   };
 
-  // const geometry = new THREE.SphereGeometry( worldRadius, worldWidth, worldHeight );
-  const geometry = new THREE.DodecahedronBufferGeometry( worldRadius, 1 );
-  const material = new THREE.MeshBasicMaterial( materialProps );
+  const geometry = new THREE.SphereGeometry( worldRadius, worldWidth, worldHeight );
+  // const geometry = new THREE.DodecahedronBufferGeometry( worldRadius, 1 );
+  const material = new THREE.MeshStandardMaterial( materialProps );
   const world = new THREE.Mesh( geometry, material );
 
   world.receiveShadow = true;
 	world.castShadow = false;
 
 	world.rotation.z = -Math.PI / 2;
-	world.position.y = -6;
+	world.position.y = -8;
 	world.position.z = 0;
 
   return world;
@@ -104,7 +112,7 @@ function createPlayer() {
 
   player.position.x = currentLane;
   player.position.y = -2;
-  player.position.z = 11.4;
+  player.position.z = 13.6;
 
   return player;
 }
@@ -116,13 +124,17 @@ function createLight() {
 
   const hemisphereLight = new THREE.HemisphereLight(skyColor, groundColor, intensity);
   const sun = new THREE.DirectionalLight( 0xCDC1C5, 1);
-	sun.position.set(12, 6, -7 );
+	sun.position.set( 12, 6, 5 );
 	sun.castShadow = true;
 	//Set up shadow properties for the sun light
-	sun.shadow.mapSize.width = 256;
-	sun.shadow.mapSize.height = 256;
-	sun.shadow.camera.near = 0.5;
-	sun.shadow.camera.far = 50;
+	sun.shadow.mapSize.width = 1024;
+	sun.shadow.mapSize.height = 1024;
+	sun.shadow.camera.near = 1;
+	sun.shadow.camera.far = 10;
+	sun.shadow.camera.right = width/2;
+	sun.shadow.camera.left = -width/2;
+	sun.shadow.camera.top = height/2;
+	sun.shadow.camera.bottom = -height/2;
 
   return [hemisphereLight, sun];
 }
@@ -136,17 +148,23 @@ function handleKeyDown(e) {
 }
 
 function updateLaneLeft() {
-  if (currentLane === -2) {
+  if (currentLane === -laneSize) {
     return;
   } else {
-    currentLane -= 2;
+    currentLane -= laneSize;
   }
 }
 
 function updateLaneRight() {
-  if (currentLane === 2) {
+  if (currentLane === laneSize) {
     return;
   } else {
-    currentLane += 2;
+    currentLane += laneSize;
   }
+}
+
+function addBoards() {
+  const boardGeometry = THREE.BoxBufferGeometry(4, 6, 1);
+
+
 }

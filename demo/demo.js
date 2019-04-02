@@ -231,6 +231,7 @@ function addWorld(){
 			}
 			heightValue = ( Math.random() * maxHeight) - (maxHeight / 2);
 			offset = vertexVector.clone().normalize().multiplyScalar(heightValue);
+			// Why manually assign vertices?
 			sphereGeometry.vertices[i + vertexIndex] = (vertexVector.add(offset));
 		}
 	}
@@ -242,6 +243,7 @@ function addWorld(){
 	scene.add( rollingGroundSphere );
 	rollingGroundSphere.position.y = -24;
 	rollingGroundSphere.position.z = 2;
+	// Initial trees
 	addWorldTrees();
 }
 
@@ -334,7 +336,7 @@ function createTree(){
 	var trunkMaterial = new THREE.MeshStandardMaterial( { color: 0x886633,shading:THREE.FlatShading  } );
 	var treeTrunk = new THREE.Mesh( treeTrunkGeometry, trunkMaterial );
 	treeTrunk.position.y=0.25;
-	var tree =new THREE.Object3D();
+	var tree = new THREE.Object3D();
 	tree.add(treeTrunk);
 	tree.add(treeTop);
 	return tree;
@@ -414,11 +416,13 @@ function update(){
 }
 
 function doTreeLogic(){
+	// Checks to remove trees and read collisions
 	var oneTree;
 	var treePos = new THREE.Vector3();
 	var treesToRemove=[];
 	treesInPath.forEach( function ( element, index ) {
 		oneTree=treesInPath[ index ];
+		// read position of tree as Vector3?
 		treePos.setFromMatrixPosition( oneTree.matrixWorld );
 		if(treePos.z>6 &&oneTree.visible){//gone out of our view zone
 			treesToRemove.push(oneTree);
